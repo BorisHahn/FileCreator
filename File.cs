@@ -4,42 +4,40 @@ namespace FileCreator;
 
 public class File
 {
-    private List<string> _filesPathList = new List<string>();
-    private string Path { get; }
-    private string FileName { get; }
-    private int FilesCount { get; }
+    private readonly List<string> _filesPathList = new List<string>();
+    private readonly string _path;
+    private readonly string _fileName;
+    private readonly int _filesCount;
 
 
     public File(string path, string fileName, int filesCount)
     {
-        Path = path;
-        FileName = fileName;
-        FilesCount = filesCount;
+        _path = path;
+        _fileName = fileName;
+        _filesCount = filesCount;
     }
 
     public async Task Create()
     {
-        var dir = new DirectoryInfo(Path);
+        var dir = new DirectoryInfo(_path);
         if (!dir.Exists)
         {
             dir.Create();
         }
 
-        for (var i = 1; i <= FilesCount; i++)
+        for (var i = 1; i <= _filesCount; i++)
         {
-            string[] paths = { $"{Path}", $"{FileName}{i}.txt" };
+            string[] paths = { $"{_path}", $"{_fileName}{i}.txt" };
             var filePath = System.IO.Path.Combine(paths);
             _filesPathList.Add(filePath);
             var file = new FileInfo(filePath);
             if (!file.Exists)
             {
-                using var fileStream = System.IO.File.Create(filePath);
-            }
-
-            using (var sw = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
-            {
-                await sw.WriteLineAsync($"{file.Name}");
-                await sw.WriteLineAsync($"{DateTime.Now}");
+                using (StreamWriter fileStream = System.IO.File.CreateText(filePath))
+                {
+                    fileStream.WriteLine($"{file.Name}");
+                    fileStream.WriteLine($"{DateTime.Now}");
+                }
             }
         }
     }
